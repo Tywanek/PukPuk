@@ -17,6 +17,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.radlab.pukpuk.repositories.RandomJokeRepository
 import com.radlab.pukpuk.ui.theme.PukPukTheme
 import com.radlab.pukpuk.viewmodels.JokeFlowViewModel
 
@@ -30,7 +31,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    RandomJokeScreen(viewModel = JokeFlowViewModel())
+                    RandomJokeScreen(viewModel = JokeFlowViewModel(RandomJokeRepository()))
                 }
             }
         }
