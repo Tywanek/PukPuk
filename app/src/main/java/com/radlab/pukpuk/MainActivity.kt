@@ -3,6 +3,7 @@ package com.radlab.pukpuk
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -20,18 +21,18 @@ import androidx.compose.ui.unit.dp
 import com.radlab.pukpuk.repositories.RandomJokeRepository
 import com.radlab.pukpuk.ui.theme.PukPukTheme
 import com.radlab.pukpuk.viewmodels.JokeFlowViewModel
+import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             PukPukTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    RandomJokeScreen(viewModel = JokeFlowViewModel(RandomJokeRepository()))
+                    SlowlyAppearingText(viewModel = JokeFlowViewModel(RandomJokeRepository()))
                 }
             }
         }
@@ -39,28 +40,33 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun RandomJokeScreen(viewModel: JokeFlowViewModel) {
+fun SlowlyAppearingText(viewModel: JokeFlowViewModel, durationMillis: Int = 2000) {
     var text by remember { mutableStateOf("") }
+    var visibleText by remember { mutableStateOf("") }
+
     LaunchedEffect(Unit) {
         viewModel.getRandomJoke().collect { joke ->
             text = joke
+            for (i in joke.indices) {
+                visibleText = joke.substring(0, i + 1)
+                delay(durationMillis.toLong() / joke.length)
+            }
         }
     }
-    Text(text = text, modifier = Modifier.padding(16.dp))
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+    Column {
+        Text(
+            text = visibleText, modifier = Modifier
+                .padding(25.dp)
+                .padding(top = 36.dp)
+        )
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
     PukPukTheme {
-        Greeting("Android")
+        SlowlyAppearingText(viewModel = JokeFlowViewModel(RandomJokeRepository()))
     }
 }
