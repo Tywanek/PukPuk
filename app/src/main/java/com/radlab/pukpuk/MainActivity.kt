@@ -18,21 +18,25 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.radlab.pukpuk.repositories.RandomJokeRepository
 import com.radlab.pukpuk.ui.theme.PukPukTheme
 import com.radlab.pukpuk.viewmodels.JokeFlowViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val viewModel = JokeFlowViewModel()
         setContent {
             PukPukTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    SlowlyAppearingText(viewModel = JokeFlowViewModel(RandomJokeRepository()))
+                    Column {
+                        SlowlyAppearingText(viewModel.getRandomJoke())
+                        SlowlyAppearingText(viewModel.getChuckJoke())
+                    }
                 }
             }
         }
@@ -40,12 +44,12 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun SlowlyAppearingText(viewModel: JokeFlowViewModel, durationMillis: Int = 2000) {
+fun SlowlyAppearingText(joke: Flow<String>, durationMillis: Int = 2000) {
     var text by remember { mutableStateOf("") }
     var visibleText by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
-        viewModel.getRandomJoke().collect { joke ->
+        joke.collect { joke ->
             text = joke
             for (i in joke.indices) {
                 visibleText = joke.substring(0, i + 1)
@@ -67,6 +71,6 @@ fun SlowlyAppearingText(viewModel: JokeFlowViewModel, durationMillis: Int = 2000
 @Composable
 fun GreetingPreview() {
     PukPukTheme {
-        SlowlyAppearingText(viewModel = JokeFlowViewModel(RandomJokeRepository()))
+        SlowlyAppearingText(JokeFlowViewModel().getChuckJoke())
     }
 }
